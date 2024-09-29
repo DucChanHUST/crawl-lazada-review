@@ -9,7 +9,7 @@ Go to the Network tab and select the `Fetch/XHR` button. Click on a different pa
 Paste the ItemId and Cookie into the `.env` file.
 
 ### Step 4
-Rename .env.example to `.env`.
+Rename `.env.example` to `.env`.
 
 ### Step 5
 Run `npm install` to install dependencies.
