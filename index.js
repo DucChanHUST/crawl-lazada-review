@@ -20,8 +20,12 @@ const fetchData = async () => {
   const headers = JSON.parse(fs.readFileSync("header.json", "utf8"));
   headers["Cookie"] = process.env.COOKIE;
 
+  const itemId = process.env.ITEM_ID;
   const urlBase = process.env.URL_BASE;
-  const response_base = await axios.get(`${urlBase}1`, { headers: headers });
+  const url = `${urlBase.replace('${ITEM_ID}', itemId)}`;
+  console.log(`Fetching reviews for item ${itemId} from ${url}`);
+  
+  const response_base = await axios.get(`${url}1`, { headers: headers });
   const toalPages = response_base.data.model.paging.totalPages;
   console.log(`Total pages: ${toalPages}`);
 
@@ -31,7 +35,7 @@ const fetchData = async () => {
     try {
       console.log(`Fetching page ${i} of ${toalPages}`);
 
-      const response = await axios.get(`${urlBase}${i}`, { headers: headers });
+      const response = await axios.get(`${url}${i}`, { headers: headers });
       const reviews = response.data.model.items;
 
       for (const review of reviews) {
