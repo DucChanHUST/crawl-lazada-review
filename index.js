@@ -23,9 +23,8 @@ const fetchData = async () => {
   const itemId = process.env.ITEM_ID;
   const urlBase = process.env.URL_BASE;
   const url = `${urlBase.replace("${ITEM_ID}", itemId)}`;
-  console.log(`Fetching reviews for item ${itemId} from ${url}`);
 
-  const response_base = await axios.get(`${url}1`, { headers: headers });
+  const response_base = await axios.get(`${url}1`, { headers: headers });  
   const toalPages = response_base.data.model.paging.totalPages;
   console.log(`Total pages: ${toalPages}`);
 
@@ -34,6 +33,7 @@ const fetchData = async () => {
   for (let i = 1; i <= toalPages; i++) {
     try {
       console.log(`Fetching page ${i} of ${toalPages}`);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const response = await axios.get(`${url}${i}`, { headers: headers });
       const reviews = response.data.model.items;
