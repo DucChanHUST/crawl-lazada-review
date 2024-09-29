@@ -12,4 +12,5 @@ Paste the ItemId and Cookie into the `.env` file.
 Rename .env.example to `.env`.
 
 ### Step 5
+Run `npm install` to install dependencies.
 Run the application using `npm start`.
