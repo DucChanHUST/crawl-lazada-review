@@ -22,9 +22,9 @@ const fetchData = async () => {
 
   const itemId = process.env.ITEM_ID;
   const urlBase = process.env.URL_BASE;
-  const url = `${urlBase.replace('${ITEM_ID}', itemId)}`;
+  const url = `${urlBase.replace("${ITEM_ID}", itemId)}`;
   console.log(`Fetching reviews for item ${itemId} from ${url}`);
-  
+
   const response_base = await axios.get(`${url}1`, { headers: headers });
   const toalPages = response_base.data.model.paging.totalPages;
   console.log(`Total pages: ${toalPages}`);
@@ -40,12 +40,17 @@ const fetchData = async () => {
 
       for (const review of reviews) {
         const cleanedContent = cleanText(review.reviewContent);
-        const rating = review.gradeItems.PRODUCT_REVIEW;
-
-        if (cleanedContent) {
-          const record = `${rating},${cleanedContent}\n`;
-          allRecords.push(record);
+        if (!cleanedContent) {
+          continue;
         }
+
+        const rating = review.gradeItems.PRODUCT_REVIEW;
+        if (!rating) {
+          continue;
+        }
+
+        const record = `${rating},${cleanedContent}\n`;
+        allRecords.push(record);
       }
     } catch (error) {
       console.error(`Error fetching page ${i}: ${error.message}`);
