@@ -60,6 +60,7 @@ const fetchData = async () => {
     } catch (error) {
       console.error(`Error fetching page ${i}: ${error.message}`);
       writeRecordsToCSV(allRecords);
+      return;
     }
   }
 
