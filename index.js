@@ -16,6 +16,11 @@ const cleanText = (text) => {
     .trim();
 };
 
+const writeRecordsToCSV = (records) => {
+  const csvContent = records.join("");
+  fs.writeFileSync("reviews.csv", csvContent, "utf8");
+};
+
 const fetchData = async () => {
   const headers = JSON.parse(fs.readFileSync("header.json", "utf8"));
   headers["Cookie"] = process.env.COOKIE;
@@ -24,15 +29,15 @@ const fetchData = async () => {
   const urlBase = process.env.URL_BASE;
   const url = `${urlBase.replace("${ITEM_ID}", itemId)}`;
 
-  const response_base = await axios.get(`${url}1`, { headers: headers });  
-  const toalPages = response_base.data.model.paging.totalPages;
-  console.log(`Total pages: ${toalPages}`);
+  const response_base = await axios.get(`${url}1`, { headers: headers });
+  const totalPage = response_base.data.model.paging.totalPages;
+  console.log(`Total pages: ${totalPage}`);
 
   const allRecords = [];
 
-  for (let i = 1; i <= toalPages; i++) {
+  for (let i = 1; i <= totalPage; i++) {
     try {
-      console.log(`Fetching page ${i} of ${toalPages}`);
+      console.log(`Fetching page ${i} of ${totalPage}`);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const response = await axios.get(`${url}${i}`, { headers: headers });
@@ -54,12 +59,13 @@ const fetchData = async () => {
       }
     } catch (error) {
       console.error(`Error fetching page ${i}: ${error.message}`);
+      writeRecordsToCSV(allRecords);
     }
   }
 
-  const csvContent = allRecords.join("");
-
-  fs.writeFileSync("reviews.csv", csvContent, "utf8");
+  if (allRecords.length > 0) {
+    writeRecordsToCSV(allRecords);
+  }
 };
 
 await fetchData();
