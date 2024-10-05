@@ -24,6 +24,7 @@ const writeRecordsToCSV = (records) => {
 const fetchData = async () => {
   const headers = JSON.parse(fs.readFileSync("header.json", "utf8"));
   headers["Cookie"] = process.env.COOKIE;
+  headers["x-csrf-token"] = process.env.CSRF_TOKEN;
 
   const itemId = process.env.ITEM_ID;
   const urlBase = process.env.URL_BASE;
