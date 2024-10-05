@@ -36,6 +36,12 @@ const processReviews = (reviews, records, rate) => {
   }
 };
 
+const randomDelay = () => {
+  const min = 800;
+  const max = 1500;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 const fetchData = async () => {
   const headers = JSON.parse(fs.readFileSync("header.json", "utf8"));
   headers["Cookie"] = process.env.COOKIE;
@@ -49,7 +55,7 @@ const fetchData = async () => {
 
   for (const rate of rating) {
     console.log(`Fetching reviews with rating ${rate}`);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, randomDelay()));
 
     const url = urlBase
       .replace("${ITEM_ID}", itemId)
@@ -66,7 +72,7 @@ const fetchData = async () => {
 
       for (let i = 2; i <= totalPage; i++) {
         console.log(`Fetching page ${i} of ${totalPage}`);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, randomDelay()));
 
         const response = await axios.get(`${url}${i}`, { headers: headers });
         const reviews = response.data.model.items;
