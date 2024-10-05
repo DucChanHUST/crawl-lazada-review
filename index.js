@@ -21,6 +21,21 @@ const writeRecordsToCSV = (records) => {
   fs.writeFileSync("reviews.csv", csvContent, "utf8");
 };
 
+const processReviews = (reviews, records, rate) => {
+  for (const review of reviews) {
+    const cleanedContent = cleanText(review.reviewContent);
+    if (!cleanedContent) continue;
+
+    let rating = review.gradeItems.PRODUCT_REVIEW;
+    if (!rating) {
+      rating = rate;
+    }
+
+    const record = `${rating},${cleanedContent}\n`;
+    records.push(record);
+  }
+};
+
 const fetchData = async () => {
   const headers = JSON.parse(fs.readFileSync("header.json", "utf8"));
   headers["Cookie"] = process.env.COOKIE;
@@ -28,38 +43,38 @@ const fetchData = async () => {
 
   const itemId = process.env.ITEM_ID;
   const urlBase = process.env.URL_BASE;
-  const url = `${urlBase.replace("${ITEM_ID}", itemId)}`;
-
-  const response_base = await axios.get(`${url}1`, { headers: headers });
-  const totalPage = response_base.data.model.paging.totalPages;
-  console.log(`Total pages: ${totalPage}`);
 
   const allRecords = [];
+  const rating = ["1", "2", "3", "4"];
 
-  for (let i = 1; i <= totalPage; i++) {
+  for (const rate of rating) {
+    console.log(`Fetching reviews with rating ${rate}`);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    const url = urlBase
+      .replace("${ITEM_ID}", itemId)
+      .replace("${FILTER}", rate);
+
     try {
-      console.log(`Fetching page ${i} of ${totalPage}`);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response_base = await axios.get(`${url}1`, { headers: headers });
 
-      const response = await axios.get(`${url}${i}`, { headers: headers });
-      const reviews = response.data.model.items;
+      const reviews_base = response_base.data.model.items;
+      const totalPage = response_base.data.model.paging.totalPages;
 
-      for (const review of reviews) {
-        const cleanedContent = cleanText(review.reviewContent);
-        if (!cleanedContent) {
-          continue;
-        }
+      console.log(`Fetching page 1 of ${totalPage}`);
+      processReviews(reviews_base, allRecords, rate);
 
-        const rating = review.gradeItems.PRODUCT_REVIEW;
-        if (!rating) {
-          continue;
-        }
+      for (let i = 2; i <= totalPage; i++) {
+        console.log(`Fetching page ${i} of ${totalPage}`);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        const record = `${rating},${cleanedContent}\n`;
-        allRecords.push(record);
+        const response = await axios.get(`${url}${i}`, { headers: headers });
+        const reviews = response.data.model.items;
+
+        processReviews(reviews, allRecords, rate);
       }
     } catch (error) {
-      console.error(`Error fetching page ${i}: ${error.message}`);
+      console.error(`Error fetching rate ${rate}: ${error.message}`);
       writeRecordsToCSV(allRecords);
       return;
     }
