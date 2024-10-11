@@ -26,12 +26,19 @@ const processReviews = (reviews, records, rate) => {
     const cleanedContent = cleanText(review.reviewContent);
     if (!cleanedContent) continue;
 
-    let rating = review.gradeItems.PRODUCT_REVIEW;
-    if (!rating) {
-      rating = rate;
+    const contentExists = records.some((record) =>
+      record.includes(cleanedContent)
+    );
+    if (contentExists) {
+      continue;
     }
 
-    const record = `${rating},${cleanedContent}\n`;
+    // let rating = review.gradeItems.PRODUCT_REVIEW;
+    // if (!rating) {
+    //   rating = rate;
+    // }
+
+    const record = `${rate},${cleanedContent}\n`;
     records.push(record);
   }
 };
@@ -71,13 +78,15 @@ const fetchData = async () => {
       processReviews(reviews_base, allRecords, rate);
 
       for (let i = 2; i <= totalPage; i++) {
-        console.log(`Fetching page ${i} of ${totalPage}`);
-        await new Promise((resolve) => setTimeout(resolve, randomDelay()));
+        try {
+          console.log(`Fetching page ${i} of ${totalPage}`);
+          await new Promise((resolve) => setTimeout(resolve, randomDelay()));
 
-        const response = await axios.get(`${url}${i}`, { headers: headers });
-        const reviews = response.data.model.items;
+          const response = await axios.get(`${url}${i}`, { headers: headers });
+          const reviews = response.data.model.items;
 
-        processReviews(reviews, allRecords, rate);
+          processReviews(reviews, allRecords, rate);
+        } catch (error) {}
       }
     } catch (error) {
       console.error(`Error fetching rate ${rate}: ${error.message}`);
