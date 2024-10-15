@@ -47,7 +47,6 @@ docker build -t crawl-lazada-review .
 
 ### Step 2: Run the Docker container
 ```
-docker run --env-file .env crawl-lazada-review
+docker run --env-file .env -v ./:/crawl-lazada-review/data crawl-lazada-review 
 ```
-
 *Note: When you make changes to the .env file, you only need to repeat Step 2 to apply the updated environment variables.*
